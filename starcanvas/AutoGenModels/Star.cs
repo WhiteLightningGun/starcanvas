@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace starcanvas.data;
 
+
+
 [Table("stars")]
 public partial class Star
 {

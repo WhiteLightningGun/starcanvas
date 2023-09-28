@@ -31,16 +31,18 @@ function App() {
   const [radiusCofactor, setCoFactor] = useState(0.4);
 
   //MODAL WINDOW VARIABLES
-  const [modalActive, setModal] = useState(true);
-
-  const [modalMessage, setMessage] = useState('nothing to see here');
+  const [modalActive, setModal] = useState(false);
+  const [modalMessage, setMessage] = useState('Click star for data');
+  const [modalData, setModalData] = useState('No data available');
 
   const UpdateModalWithStarData = (starId) => {
     LookUpID(starId).then( (result) => {
       
       let dec_RAD = DeclinationToRadians(result[0].decRad);
       let ra_RAD = RAToRadians(result[0].raRad);
-      setMessage(` Dec: ${dec_RAD}, Ra: ${ra_RAD}, Constellation: ${result[0].bayerFlamsteed} `)
+      setMessage(` Dec: ${dec_RAD}, Ra: ${ra_RAD}, Constellation: ${result[0].bayerFlamsteed} `);
+      setModalData(result[0]);
+      console.log(result);
     });
     setModal(true);
     setMessage(`Retrieving Data... `)
@@ -139,7 +141,7 @@ function App() {
 
     />
     
-    <Modal active={modalActive} handleClick={handleModalClick} message={modalMessage} /> </>
+    <Modal active={modalActive} handleClick={handleModalClick} message={modalMessage} modalData={modalData} /> </>
 }
 
 export default App
