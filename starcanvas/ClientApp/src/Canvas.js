@@ -4,6 +4,9 @@ import './Components/css/canvas.css';
 import Orthographic_Project from './Tools/Orthographic_Projection';
 import AngularDistanceCheck from './Tools/AngularDistanceCheck';
 import AllConstellations from './Constellations/AllConstellations';
+import MaxMagnitudeForFOV from './Tools/MaxMagnitudeForFOV';
+import DistanceMagnitude from './Tools/DistanceMagnitude';
+import NewCoFactor from './Tools/NewCoFactor';
 
 const Canvas = props => {  
   const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate,  ...rest } = props
@@ -12,15 +15,15 @@ const Canvas = props => {
   let Ra = currentDecRa.RaCurrent;
   let Dec = currentDecRa.DecCurrent;
   let clickActive = false;
-  let currentMousePosition = [0, 0];
-  let mouseDownPositionDecRa = [0, 0, 0, 0];
+  let currentMousePosition = [0, 0]; // stores (x,y) coordinates as [x,y]
+  let mouseDownPositionDecRa = [0, 0, 0, 0]; // stores (x,y) coordinates and Declination, Right Ascension at moment of mouse click
   let RadiusCoFactor = radiusCofactor; //scales the orthographic calculation results to fit neatly to the current screen proportions
   let maxMagnitude;
   let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
   let expectingDataUpdate = false; // if true then the api will be called after alloted time, after successful call or a re-render it will be set to false again
   let fovHysteresis = 500; // units are ms
 
-  const draw = (ctx, frameCount, width, height) => {
+  const draw = (ctx, frameCount) => {
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       //call api if current time exceeds fovAdjustTime by the hysteresis setting
@@ -28,7 +31,7 @@ const Canvas = props => {
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
     }
 
-    maxMagnitude =  0.013333333333333334*Fov + 0.6
+    maxMagnitude =  MaxMagnitudeForFOV(Fov);
 
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
 
@@ -184,13 +187,13 @@ const Canvas = props => {
 
     if(e.deltaY > 0 && Fov > 30){ // Min Fov is now 30 degrees
       Fov = Fov - 10;
-      RadiusCoFactor = newCoFactor(Fov);
+      RadiusCoFactor = NewCoFactor(Fov);
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
     else if (e.deltaY < 0 && Fov < 180) {
       Fov = Fov + 10;
-      RadiusCoFactor = newCoFactor(Fov);
+      RadiusCoFactor = NewCoFactor(Fov);
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
@@ -204,57 +207,46 @@ const Canvas = props => {
     setFov(Fov);
   }
 
-  //Scales the results of the Orthographic projections to always fill the entire canvas
-  const newCoFactor = (newFov) => {
-    let res = -newFov*0.008125 + 1.8625; // −0.008125x + 1.8625,  a straight line interpolation
-    return res;
-  }
+  //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
+  const AdjustDecRa = () => {
+  
+    if(currentMousePosition[0] === 0 && currentMousePosition[1] === 0){
+      // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
+    }
+    else{
+    let relativeX = (mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
+    let relativeY = -(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
 
-    //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
-    const AdjustDecRa = () => {
-    
-      if(currentMousePosition[0] === 0 && currentMousePosition[1] === 0){
-        // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
-      }
-      else{
-      let relativeX = (mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
-      let relativeY = -(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
-  
-      if( // declination values are limited from 1.57 down to -1.57
-          relativeY*Math.PI + mouseDownPositionDecRa[2] < 1.57 
-          && 
-          relativeY*Math.PI + mouseDownPositionDecRa[2] > -1.57
-        )
-        {
-          Dec = relativeY*Math.PI + mouseDownPositionDecRa[2];
-      }
-  
-      Ra = -relativeX*Math.PI + mouseDownPositionDecRa[3];
-  
-      if(Ra > 2*Math.PI){
-        Ra -= 2*Math.PI;
-      }
-      else if( Ra < 0){
-        Ra += 2*Math.PI;
-      }
-  
-      }
-  
+    if( // declination values are limited from 1.57 down to -1.57
+        relativeY*Math.PI + mouseDownPositionDecRa[2] < 1.57 
+        && 
+        relativeY*Math.PI + mouseDownPositionDecRa[2] > -1.57
+      )
+      {
+        Dec = relativeY*Math.PI + mouseDownPositionDecRa[2];
     }
 
-  // calculates the magnitude of distance between two points (x,y) on the canvas
-  const DistanceMagnitude = (x1, y1, x2, y2) =>{
-    let res = Math.sqrt(Math.pow((x2 - x1), 2 ) + Math.pow((y2 - y1), 2 ));
-    //console.log(res);
-    return res;
+    Ra = -relativeX*Math.PI + mouseDownPositionDecRa[3];
+
+    if(Ra > 2*Math.PI){
+      Ra -= 2*Math.PI;
+    }
+    else if( Ra < 0){
+      Ra += 2*Math.PI;
+    }
+
+    }
+
   }
 
   // uses coordinates of mouse click to identify which star was clicked
   const LookUpStarLocation = (x,y) => {
+
     let objectLength = Object.keys(data).length;
+    let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight 
 
     for(let i = 0 ; i < objectLength ; i++){
-      let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
+    
       let coords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
 
       if ( DistanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
