@@ -44,6 +44,8 @@ function App() {
       setModalData(result[0]);
       console.log(result);
     });
+
+    // while awaiting LookUpID to finishing fetching data 
     setModal(true);
     setMessage(`Retrieving Data... `)
     //
@@ -55,12 +57,12 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
-    //coordsChanger(x, y);
-
 
     LookUp(fov, ra, dec).then( (result) => {
       setStarData({...result});
       } );
+
+    //while awaiting return, it may be worth freezing further changes to the canvas position and drawing spinning icon
 
   }
 
@@ -75,7 +77,7 @@ function App() {
   const [centreCoords, setCurrentCentre] = useState({centreX: 0.5*window.innerWidth, centreY: 0.5*window.innerHeight});
 
   useEffect(() => {
-    console.log(`useEffect LookUp was called, ${currentDecRa.DecCurrent}, ${currentDecRa.RaCurrent}`)
+
     //Grab data from API using current canvas conditions
     LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
 
@@ -113,8 +115,6 @@ function App() {
   const coordsChanger = (x,y) => {
     setCurrentCoords({ x: x, y: y })
     setCurrentCentre({ centreX: dimensions.width * 0.5, centreY: dimensions.height * 0.5 })
-    //modalActive ? setModal(false) : setModal(true) ;
-    //setMessage(`fov: ${fov} radiusCoFactor: ${radiusCofactor} Dec: ${currentDecRa.DecCurrent}, Ra: ${currentDecRa.RaCurrent} `)
   }
 
   function changeDecRa(dec, ra){
