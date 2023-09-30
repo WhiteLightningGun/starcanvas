@@ -3,9 +3,6 @@ import useCanvas from './useCanvas'
 import './Components/css/canvas.css';
 import Orthographic_Project from './Tools/Orthographic_Projection';
 import AngularDistanceCheck from './Tools/AngularDistanceCheck';
-import UrsaMinor from './Constellations/UrsaMinor';
-import UrsaMajor from './Constellations/UrsaMajor';
-import Cassiopeia from './Constellations/Cassiopeia';
 import AllConstellations from './Constellations/AllConstellations';
 
 const Canvas = props => {  
@@ -21,13 +18,12 @@ const Canvas = props => {
   let maxMagnitude;
   let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
   let expectingDataUpdate = false; // if true then the api will be called after alloted time, after successful call or a re-render it will be set to false again
-  let fovHysteresis = 500; // 1000 ms
+  let fovHysteresis = 500; // units are ms
 
   const draw = (ctx, frameCount, width, height) => {
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       //call api if current time exceeds fovAdjustTime by the hysteresis setting
-      console.log(`api was called!!!`);
       expectingDataUpdate = false;
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
     }
@@ -36,7 +32,7 @@ const Canvas = props => {
 
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
 
-    //clear and fill with dark blue
+    //clear and fill canvas with dark blue
     ctx.fillStyle = '#02071a'
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
     ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
@@ -55,24 +51,31 @@ const Canvas = props => {
     //Text and labels
     ctx.font = "12px Arial";
 
-    //write current dec and ra values to canvas converted degrees, hours, rounded to two decimals
+    //write current dec and ra values to lower left of canvas converted degrees, hours, rounded to two decimals
     ctx.strokeStyle = 'white';
     ctx.fillStyle = 'white';
-    ctx.fillText(`Dec: ${(Dec*57.29577951).toFixed(2)} deg, Ra: ${(Ra*3.819718634).toFixed(2)} hours`, 1,window.innerHeight -25); 
+    ctx.fillText(`Dec: ${(Dec*57.29577951).toFixed(2)} deg, Ra: ${(Ra*3.819718634).toFixed(2)} hours`, 1,window.innerHeight -25); //converts Dec and Ra to degrees/hours
 
     //draw constellations
-    ctx.strokeStyle = '#434343';
-    ctx.fillStyle = '#434343';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#6E6E6E';
+    ctx.fillStyle = '#6E6E6E';
+    ctx.lineWidth = 2;
 
-    //This should be switchable, and depend on a state variable located in App.js
-    for(let i = 0; i < AllConstellations.length ; i++)
+    // // This should be switchable, and depend on a state variable located in App.js
+
+    let allConstellationsLength = AllConstellations.length;
+
+    for(let i = 0; i < allConstellationsLength ; i++)
     {
-      for(let j = 0; j < AllConstellations[i].length; j++)
+      let constellationLength = AllConstellations[i].length;
+
+      for(let j = 0; j < constellationLength; j++)
       {
-        for(let k = 0; k < AllConstellations[i][j].length - 1; k++ )
+        let subConstellationLength = AllConstellations[i][j].length
+
+        for(let k = 0; k < subConstellationLength - 1; k++ )
         {
-          //Decide whether or not to calculate and draw line depending on if it is in Fov
+          //Decide whether or not to calculate and draw line depending on if it is within current Fov
           if(AngularDistanceCheck(Fov, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1]))
           { 
             let coord1 = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1] )
@@ -82,12 +85,14 @@ const Canvas = props => {
             ctx.moveTo(coord1[0] + 0.5*window.innerWidth, coord1[1] + 0.5*window.innerHeight);
             ctx.lineTo(coord2[0] + 0.5*window.innerWidth, coord2[1]+ 0.5*window.innerHeight);
 
-            ctx.strokeStyle = '#1f253f';
+            ctx.strokeStyle = '#3e4948';
             ctx.stroke();
           }
         }
       }
     }
+
+    // Iterate through star data object and draw stars
 
     let dataLength = Object.keys(data).length;
 
@@ -134,30 +139,7 @@ const Canvas = props => {
       
   } //draw function ends here 
 
-
-  const LookUpStarLocation = (x,y) => {
-    let objectLength = Object.keys(data).length;
-
-    for(let i = 0 ; i < objectLength ; i++){
-      let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
-      let coords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
-
-      if (DistanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
-        console.log(`Found star with DB id: ${data[i].id}, names: ${data[i].name} `);
-
-        UpdateModalWithStarData(data[i].id);
-
-      }
-    }
-
-  }
-
-  const DistanceMagnitude = (x1, y1, x2, y2) =>{
-    let res = Math.sqrt(Math.pow((x2 - x1), 2 ) + Math.pow((y2 - y1), 2 ));
-    //console.log(res);
-    return res;
-  }
-
+  // UTILITIES FOR HTML EVENTS 
   const canvasRef = useCanvas(draw)
 
   const handleClick = (e) => {
@@ -183,9 +165,6 @@ const Canvas = props => {
   }
 
   const mouseUpped = (e) => {
-    //const rect = canvasRef.current.getBoundingClientRect()
-    //const x = e.clientX - rect.left
-    //const y = e.clientY - rect.top
 
     clickActive = false;
 
@@ -199,37 +178,6 @@ const Canvas = props => {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     currentMousePosition = [x, y];
-  }
-
-  const AdjustDecRa = () => {
-    
-    if(currentMousePosition[0] === 0 && currentMousePosition[1] === 0){
-      // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
-    }
-    else{
-    let relativeX = (mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
-    let relativeY = -(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
-
-    if( // declination values are limited from 1.57 down to -1.57
-        relativeY*Math.PI + mouseDownPositionDecRa[2] < 1.57 
-        && 
-        relativeY*Math.PI + mouseDownPositionDecRa[2] > -1.57
-      )
-      {
-        Dec = relativeY*Math.PI + mouseDownPositionDecRa[2];
-    }
-
-    Ra = -relativeX*Math.PI + mouseDownPositionDecRa[3];
-
-    if(Ra > 2*Math.PI){
-      Ra -= 2*Math.PI;
-    }
-    else if( Ra < 0){
-      Ra += 2*Math.PI;
-    }
-
-    }
-    //change the way RA is handled here so as to prevent the bug where -1.57 is taken from RA for no apparent reason after clicking
   }
 
   const mouseWheeled = (e) =>{
@@ -249,17 +197,75 @@ const Canvas = props => {
 
   }
 
+  // PURE UTILITY CLASSES FOR USE BY THE CANVAS
   const DoubleClick = () =>{
     changeDecRa(Dec, Ra);
     setCoFactor(RadiusCoFactor);
     setFov(Fov);
   }
 
+  //Scales the results of the Orthographic projections to always fill the entire canvas
   const newCoFactor = (newFov) => {
-    let res = -newFov*0.008125 + 1.8625; // −0.008125x + 1.8625
+    let res = -newFov*0.008125 + 1.8625; // −0.008125x + 1.8625,  a straight line interpolation
     return res;
   }
+
+    //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
+    const AdjustDecRa = () => {
     
+      if(currentMousePosition[0] === 0 && currentMousePosition[1] === 0){
+        // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
+      }
+      else{
+      let relativeX = (mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
+      let relativeY = -(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
+  
+      if( // declination values are limited from 1.57 down to -1.57
+          relativeY*Math.PI + mouseDownPositionDecRa[2] < 1.57 
+          && 
+          relativeY*Math.PI + mouseDownPositionDecRa[2] > -1.57
+        )
+        {
+          Dec = relativeY*Math.PI + mouseDownPositionDecRa[2];
+      }
+  
+      Ra = -relativeX*Math.PI + mouseDownPositionDecRa[3];
+  
+      if(Ra > 2*Math.PI){
+        Ra -= 2*Math.PI;
+      }
+      else if( Ra < 0){
+        Ra += 2*Math.PI;
+      }
+  
+      }
+  
+    }
+
+  // calculates the magnitude of distance between two points (x,y) on the canvas
+  const DistanceMagnitude = (x1, y1, x2, y2) =>{
+    let res = Math.sqrt(Math.pow((x2 - x1), 2 ) + Math.pow((y2 - y1), 2 ));
+    //console.log(res);
+    return res;
+  }
+
+  // uses coordinates of mouse click to identify which star was clicked
+  const LookUpStarLocation = (x,y) => {
+    let objectLength = Object.keys(data).length;
+
+    for(let i = 0 ; i < objectLength ; i++){
+      let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
+      let coords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
+
+      if ( DistanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
+        console.log(`Found star with DB id: ${data[i].id}, names: ${data[i].name} `);
+
+        UpdateModalWithStarData(data[i].id);
+
+      }
+    }
+  }
+
   return <canvas ref={canvasRef} {...rest} width={width} height={height} className="canvas" onClick={handleClick} onMouseDown={mousedowned} onMouseUp={mouseUpped} onMouseMove={currentMousPos} onWheel= {mouseWheeled} onDoubleClick={DoubleClick}/>
 }
 
@@ -268,7 +274,7 @@ export default Canvas
 
 /*
 
-Objects returned from API stars_draw database have form:
+N.B. Objects returned from API stars_draw database have form:
 
 color : "#F3F8FA"
 decRad: -0.052839475014189084
