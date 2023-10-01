@@ -24,6 +24,7 @@ function App() {
   const firstStar = [{color: "#F3F8FA", decRad: -0.052839475014189084, id: 107, magnitude: 2.107819904933649, name: "", raRad: 0.007958510275541049}]
 
   const [starData, setStarData] = useState(firstStar) // initial data to create canvas with before api has responded
+  const [activeStar, setActiveStar] = useState(false); // use this to store coords of active star
 
   //VIEWPORT SETTINGS
   const [currentDecRa, setDecRa] = useState({DecCurrent: 1.57, RaCurrent: 0.7})
@@ -40,7 +41,8 @@ function App() {
       
       let dec_RAD = DeclinationToRadians(result[0].decRad);
       let ra_RAD = RAToRadians(result[0].raRad);
-      setMessage(` Dec: ${dec_RAD}, Ra: ${ra_RAD}, Constellation: ${result[0].bayerFlamsteed} `);
+      setActiveStar([dec_RAD, ra_RAD]);
+      setMessage(` ** [${dec_RAD}, ${ra_RAD}], // Constellation: ${result[0].bayerFlamsteed} `);
       setModalData(result[0]);
       console.log(result);
     });
@@ -138,6 +140,7 @@ function App() {
     setFov={setFov}
     UpdateModalWithStarData={UpdateModalWithStarData}
     GeneralUpdate= {GeneralUpdate}
+    activeStar={activeStar}
 
     />
     

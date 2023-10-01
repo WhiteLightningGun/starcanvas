@@ -1,4 +1,4 @@
-// Cassiopeia
+// Bootes
 let Bootes =  [
     [
         [0.23960457902331217, 3.8447363841243773], //Constellation: 30Zet Boo

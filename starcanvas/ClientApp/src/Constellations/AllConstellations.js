@@ -4,6 +4,7 @@ import Cassiopeia from './Cassiopeia';
 import Orion from './Orion';
 import Eridanus from './Eridanus';
 import Bootes from './Bootes';
+import Libra from './Libra';
 
 
 let AllConstellations = [
@@ -12,7 +13,8 @@ let AllConstellations = [
     Cassiopeia,
     Orion,
     Eridanus,
-    Bootes
+    Bootes,
+    Libra
 ]
 
 export default AllConstellations;

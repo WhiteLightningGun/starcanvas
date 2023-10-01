@@ -8,14 +8,15 @@ import WriteCurrentDecRa from './Tools/WriteCurrentDecRa';
 import DrawConstellations from './Tools/DrawConstellations';
 import ClearCanvas from './Tools/ClearCanvas';
 import DrawStars from './Tools/DrawStars';
+import AngularDistanceCheck from './Tools/AngularDistanceCheck';
 
 const Canvas = props => {  
-  const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate,  ...rest } = props
+  const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
 
   let Fov = fov;
   let Ra = currentDecRa.RaCurrent;
   let Dec = currentDecRa.DecCurrent;
-  let clickActive = false;
+  let clickActive = false; 
   let currentMousePosition = [0, 0]; // stores (x,y) coordinates as [x,y]
   let mouseDownPositionDecRa = [0, 0, 0, 0]; // stores (x,y) coordinates and Declination, Right Ascension at moment of mouse click
   let RadiusCoFactor = radiusCofactor; //scales the orthographic calculation results to fit neatly to the current screen proportions
@@ -36,17 +37,6 @@ const Canvas = props => {
     }
 
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
-
-    // Pulsing Red Circle thing
-    /*
-    ctx.strokeStyle = "red";
-    ctx.beginPath()
-    ctx.lineWidth = 10;
-    ctx.arc(clickX, clickY, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI)
-    ctx.stroke()
-    ctx.fillStyle = 'red'
-    ctx.fill()
-    */
     
     //Text and labels
     ctx.font = "12px Arial";
@@ -54,11 +44,22 @@ const Canvas = props => {
     ClearCanvas(canvasRef, '#02071a');
     WriteCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
     DrawConstellations(canvasRef, Fov, Dec, Ra, radius, RadiusCoFactor);
-
-    // Iterate through star data object and draw stars
     DrawStars(canvasRef, data, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
-      
-  } //draw function ends here 
+
+    // Pulsing Red Circle thing
+    if(activeStar){
+
+      let activeStarCoords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, activeStar[0], activeStar[1]) 
+
+      ctx.strokeStyle = "red";
+      ctx.beginPath()
+      ctx.lineWidth = 5;
+      ctx.arc(activeStarCoords[0] + 0.5*window.innerWidth, activeStarCoords[1] + 0.5*window.innerHeight, 5 + 15 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI)
+      ctx.stroke()
+
+    }
+
+  }
 
   // UTILITIES FOR HTML EVENTS 
   const canvasRef = useCanvas(draw)

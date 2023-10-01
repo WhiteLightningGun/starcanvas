@@ -16,7 +16,7 @@ function Modal({active, handleClick, message, modalData}) {
             <div className={cssVisibilityControl}>
                 <div className="modal-header">
                     <span className="close" onClick={handleClick}>&times;</span>
-                    <h1>{modalData.properName === "N/A" ? '- - -' : modalData.properName}</h1>
+                    <h1>{modalData.properName === 'N/A' ? '- - -' : modalData.properName}</h1>
                     <h4>Hp: {modalData.hipparcos}, Gl: {modalData.gliese}, Hd: {modalData.hd}</h4>
                 </div>
                 <div className="modal-body">
