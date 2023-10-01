@@ -44,20 +44,22 @@ const Canvas = props => {
     ClearCanvas(canvasRef, '#02071a');
     WriteCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
     DrawConstellations(canvasRef, Fov, Dec, Ra, radius, RadiusCoFactor);
-    DrawStars(canvasRef, data, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
-
     // Pulsing Red Circle thing
     if(activeStar){
 
       let activeStarCoords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, activeStar[0], activeStar[1]) 
 
-      ctx.strokeStyle = "red";
+      ctx.strokeStyle = "lightgrey";
       ctx.beginPath()
-      ctx.lineWidth = 5;
-      ctx.arc(activeStarCoords[0] + 0.5*window.innerWidth, activeStarCoords[1] + 0.5*window.innerHeight, 5 + 15 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI)
+      ctx.lineWidth = 2;
+      ctx.arc(activeStarCoords[0] + 0.5*window.innerWidth, activeStarCoords[1] + 0.5*window.innerHeight, 10 , 0, 2*Math.PI) // + 2 * Math.sin(frameCount * 0.1) ** 2
       ctx.stroke()
 
+
     }
+    DrawStars(canvasRef, data, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
+
+
 
   }
 
