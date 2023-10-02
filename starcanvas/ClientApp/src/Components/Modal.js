@@ -1,7 +1,7 @@
 import React from 'react';
 import './css/modal.css';
 
-function Modal({active, handleClick, message, modalData}) {
+function Modal({active, handleModalClick, message, modalData}) {
 
     let cssVisibilityControl = false; 
 
@@ -15,7 +15,7 @@ function Modal({active, handleClick, message, modalData}) {
         return (
             <div className={cssVisibilityControl}>
                 <div className="modal-header">
-                    <span className="close" onClick={handleClick}>&times;</span>
+                    <span className="close" onClick={handleModalClick}>&times;</span>
                     <h1>{modalData.properName === 'N/A' ? '- - -' : modalData.properName}</h1>
                     <h4>Hp: {modalData.hipparcos}, Gl: {modalData.gliese}, Hd: {modalData.hd}</h4>
                 </div>

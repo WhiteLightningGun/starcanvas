@@ -5,6 +5,7 @@ import Orion from './Orion';
 import Eridanus from './Eridanus';
 import Bootes from './Bootes';
 import Libra from './Libra';
+import Pisces from './Pisces';
 
 
 let AllConstellations = [
@@ -14,7 +15,8 @@ let AllConstellations = [
     Orion,
     Eridanus,
     Bootes,
-    Libra
+    Libra,
+    Pisces
 ]
 
 export default AllConstellations;

@@ -24,8 +24,7 @@ function App() {
   const firstStar = [{color: "#F3F8FA", decRad: -0.052839475014189084, id: 107, magnitude: 2.107819904933649, name: "", raRad: 0.007958510275541049}]
 
   const [starData, setStarData] = useState(firstStar) // initial data to create canvas with before api has responded
-  const [activeStar, setActiveStar] = useState(false); // use this to store coords of active star
-
+  const [activeStar, setActiveStar] = useState(false); // use this to store coords of active star with form [dec_RAD, ra_RAD]
   //VIEWPORT SETTINGS
   const [currentDecRa, setDecRa] = useState({DecCurrent: 1.57, RaCurrent: 0.7})
   const [fov, setFov] = useState(180);
@@ -50,8 +49,7 @@ function App() {
     // while awaiting LookUpID to finishing fetching data 
     setModal(true);
     setMessage(`Retrieving Data... `)
-    //
-    
+
   }
 
   const GeneralUpdate = (fov, dec, ra, radiuscofactor, x, y) => {
@@ -103,7 +101,7 @@ function App() {
 
   function handleModalClick() {
     setModal(false);
-    
+    setActiveStar(false);
   }
 
   function updateData(fov, ra, dec){
@@ -144,7 +142,7 @@ function App() {
 
     />
     
-    <Modal active={modalActive} handleClick={handleModalClick} message={modalMessage} modalData={modalData} /> </>
+    <Modal active={modalActive} handleModalClick={handleModalClick} message={modalMessage} modalData={modalData} /> </>
 }
 
 export default App

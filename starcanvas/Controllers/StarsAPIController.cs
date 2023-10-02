@@ -71,7 +71,6 @@ public class StarsController : ControllerBase
         Console.WriteLine($"maxMagnitudeRounded for this call: {maxMagnitudeRounded}");
         Console.WriteLine($"ARGS RECEIVED = fov: {fov}, dec: {dec}, ra: {ra}");
 
-
         Span<StarsDraw> Brightest = starsDBContext.StarDraw.Select(x => x).Where(x => x.Magnitude >= maxMagnitudeRounded).ToArray(); // will return brightest stars Magnitude is actually radius here...
 
         List<StarsDraw> result = new();
@@ -82,7 +81,7 @@ public class StarsController : ControllerBase
                 result.Add(s);
             }
 
-            else if(s.Name!.Length > 0) //always include the named stars regardless of if they are in the current Fov
+            else if(s.Name!.Length > 0) //always include the named stars regardless of if they are in the current Fov, prevents disorientation
             {
                 result.Add(s);
             }

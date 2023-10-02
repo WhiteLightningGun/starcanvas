@@ -8,7 +8,9 @@ import WriteCurrentDecRa from './Tools/WriteCurrentDecRa';
 import DrawConstellations from './Tools/DrawConstellations';
 import ClearCanvas from './Tools/ClearCanvas';
 import DrawStars from './Tools/DrawStars';
-import AngularDistanceCheck from './Tools/AngularDistanceCheck';
+import DrawIndicator from './Tools/DrawIndicator';
+
+//import AngularDistanceCheck from './Tools/AngularDistanceCheck';
 
 const Canvas = props => {  
   const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
@@ -22,13 +24,13 @@ const Canvas = props => {
   let RadiusCoFactor = radiusCofactor; //scales the orthographic calculation results to fit neatly to the current screen proportions
   let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
   let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
-  let fovHysteresis = 500; // units are ms
+  let fovHysteresis = 800; // units are ms
 
   const draw = (ctx, frameCount) => {
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       //call api if current time exceeds fovAdjustTime by the hysteresis setting
-      expectingDataUpdate = false;
+      //expectingDataUpdate = false;
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
     }
 
@@ -44,22 +46,13 @@ const Canvas = props => {
     ClearCanvas(canvasRef, '#02071a');
     WriteCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
     DrawConstellations(canvasRef, Fov, Dec, Ra, radius, RadiusCoFactor);
-    // Pulsing Red Circle thing
+
+    // Indicator
     if(activeStar){
 
-      let activeStarCoords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, activeStar[0], activeStar[1]) 
-
-      ctx.strokeStyle = "lightgrey";
-      ctx.beginPath()
-      ctx.lineWidth = 2;
-      ctx.arc(activeStarCoords[0] + 0.5*window.innerWidth, activeStarCoords[1] + 0.5*window.innerHeight, 10 , 0, 2*Math.PI) // + 2 * Math.sin(frameCount * 0.1) ** 2
-      ctx.stroke()
-
-
+      DrawIndicator(canvasRef, activeStar, Fov, radius, RadiusCoFactor, Dec, Ra);
     }
     DrawStars(canvasRef, data, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
-
-
 
   }
 
@@ -108,26 +101,29 @@ const Canvas = props => {
 
     if(e.deltaY > 0 && Fov > 30){ // Min Fov is now 30 degrees
       Fov = Fov - 10;
-      RadiusCoFactor = NewCoFactor(Fov);
+      RadiusCoFactor = NewCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
+    else if (e.delta > 0 && Fov === 30){
+      return;
+    }
     else if (e.deltaY < 0 && Fov < 180) {
       Fov = Fov + 10;
-      RadiusCoFactor = NewCoFactor(Fov);
+      RadiusCoFactor = NewCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
 
   }
 
-  // UTILITY CLASSES FOR USE BY THE CANVAS
   const DoubleClick = () =>{
     changeDecRa(Dec, Ra);
     setCoFactor(RadiusCoFactor);
     setFov(Fov);
   }
 
+  // UTILITY CLASSES FOR USE BY THE CANVAS
   //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
   const AdjustDecRa = () => {
   
@@ -149,15 +145,14 @@ const Canvas = props => {
 
     Ra = -relativeX*Math.PI + mouseDownPositionDecRa[3];
 
+    //confine Ra argument to 0 - 2Pi domain
     if(Ra > 2*Math.PI){
-      Ra -= 2*Math.PI;
+      Ra -= 2*Math.PI; 
     }
     else if(Ra < 0){
       Ra += 2*Math.PI;
     }
-
     }
-
   }
 
   // uses coordinates of mouse click to identify which star was clicked
@@ -173,6 +168,7 @@ const Canvas = props => {
       if ( DistanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
         console.log(`Found star with DB id: ${data[i].id}, names: ${data[i].name} `);
         UpdateModalWithStarData(data[i].id);
+        return;
       }
     }
   }
