@@ -1,6 +1,6 @@
 import AllConstellations from '../Constellations/allconstellations';
 import angularDistanceCheck from './angular_distance_check';
-import Orthographic_Project from './orthographic_projection';
+import orthographicProjection from './orthographic_projection';
 
 function DrawConstellations(ref, Fov, Dec, Ra, radius, RadiusCoFactor, lineColour = '#343742' ){
     const canvas = ref.current
@@ -25,8 +25,8 @@ function DrawConstellations(ref, Fov, Dec, Ra, radius, RadiusCoFactor, lineColou
             //Decide whether or not to calculate and draw line depending on if it is within current Fov
             if(angularDistanceCheck(Fov, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1]))
             { 
-            let coord1 = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1] )
-            let coord2 = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k+1][0], AllConstellations[i][j][k+1][1] )
+            let coord1 = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1] )
+            let coord2 = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k+1][0], AllConstellations[i][j][k+1][1] )
 
             ctx.beginPath();
             ctx.moveTo(coord1[0] + 0.5*window.innerWidth, coord1[1] + 0.5*window.innerHeight);

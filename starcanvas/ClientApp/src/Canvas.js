@@ -1,16 +1,14 @@
 import React from 'react'
 import useCanvas from './use_canvas'
 import './Components/css/canvas.css';
-import Orthographic_Project from './Tools/orthographic_projection';
-import DistanceMagnitude from './Tools/distance_magnitude';
-import NewCoFactor from './Tools/new_cofactor';
+import orthographicProjection from './Tools/orthographic_projection';
+import distanceMagnitude from './Tools/distance_magnitude';
+import newCoFactor from './Tools/new_cofactor';
 import writeCurrentDecRa from './Tools/write_current_dec_ra';
 import DrawConstellations from './Tools/draw_constellations';
 import clearCanvas from './Tools/clear_canvas';
 import DrawStars from './Tools/draw_stars';
 import DrawIndicator from './Tools/draw_indicator';
-
-//import AngularDistanceCheck from './Tools/AngularDistanceCheck';
 
 const Canvas = props => {  
   const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
@@ -31,7 +29,6 @@ const Canvas = props => {
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       //call api if current time exceeds fovAdjustTime by the hysteresis setting
-      //expectingDataUpdate = false;
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
     }
 
@@ -85,7 +82,9 @@ const Canvas = props => {
   const mouseUpped = (e) => {
 
     clickActive = false;
-
+    expectingDataUpdate = true;
+    fovAdjustTime = Date.now();
+    
     changeDecRa(Dec, Ra);
     setCoFactor(RadiusCoFactor);
     setFov(Fov);
@@ -102,7 +101,7 @@ const Canvas = props => {
 
     if(e.deltaY > 0 && Fov > 30){ // Min Fov is now 30 degrees
       Fov = Fov - 10;
-      RadiusCoFactor = NewCoFactor(Fov); // this is not a react state change and does not trigger re-render
+      RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
@@ -111,7 +110,7 @@ const Canvas = props => {
     }
     else if (e.deltaY < 0 && Fov < 180) {
       Fov = Fov + 10;
-      RadiusCoFactor = NewCoFactor(Fov); // this is not a react state change and does not trigger re-render
+      RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
@@ -164,9 +163,9 @@ const Canvas = props => {
 
     for(let i = 0 ; i < objectLength ; i++){
     
-      let coords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
+      let coords = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
 
-      if ( DistanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
+      if ( distanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
         console.log(`Found star with DB id: ${data[i].id}, names: ${data[i].name} `);
         UpdateModalWithStarData(data[i].id);
         return;

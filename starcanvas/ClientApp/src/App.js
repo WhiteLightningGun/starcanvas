@@ -57,11 +57,11 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
-
+      /*
     LookUp(fov, ra, dec).then( (result) => {
       setStarData({...result});
       } );
-
+*/
     //while awaiting return, it may be worth freezing further changes to the canvas position and drawing spinning icon
 
   }
@@ -77,12 +77,14 @@ function App() {
   const [centreCoords, setCurrentCentre] = useState({centreX: 0.5*window.innerWidth, centreY: 0.5*window.innerHeight});
 
   useEffect(() => {
-
+    
     //Grab data from API using current canvas conditions
     LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
 
       setStarData({...result});
-      } );
+      } ); 
+      
+    
     
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({ height: window.innerHeight, width: window.innerWidth })
@@ -95,7 +97,7 @@ function App() {
     return _ => {
       window.removeEventListener('resize', debouncedHandleResize)
     }
-  }, [centreCoords, dimensions, currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov])
+  }, [centreCoords, dimensions, fov])
 
   //HANDLER FUNCTIONS
 

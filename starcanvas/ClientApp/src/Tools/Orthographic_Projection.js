@@ -9,7 +9,7 @@
  * @returns 
  */
 
-function orthographicProject(radius, phi0, l0, phi1, l1){
+function orthographicProjection(radius, phi0, l0, phi1, l1){
 
     let x = radius*Math.cos(phi1)*Math.sin(l1 - l0)
     let y = radius*(Math.cos(phi0)*Math.sin(phi1) - Math.sin(phi0)*Math.cos(phi1)*Math.cos(l1 - l0))
@@ -18,4 +18,4 @@ function orthographicProject(radius, phi0, l0, phi1, l1){
 
 } //return coords x, y suitable for current canvas configuration
 
-export default orthographicProject;
+export default orthographicProjection;

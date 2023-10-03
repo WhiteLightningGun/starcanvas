@@ -6,6 +6,13 @@ import {ERIDANUS} from './eridanus';
 import {BOOTES} from './bootes';
 import {LIBRA} from './libra';
 import {PISCES} from './pisces';
+import {AQUARIUS} from './aquarius';
+import {SCORPIUS} from './scorpius';
+import {VIRGO} from './virgo';
+import {LEO} from './leo';
+import {CANCER} from './cancer';
+import {LYRA} from './lyra';
+import {GEMINI} from './gemini';
 
 
 //to do, make constellations a function that will return an array of constellations appropriate for the current FOV, Declination and Right Ascension
@@ -18,7 +25,14 @@ let AllConstellations = [
     ERIDANUS,
     BOOTES,
     LIBRA,
-    PISCES
+    PISCES,
+    AQUARIUS,
+    SCORPIUS,
+    VIRGO,
+    LEO,
+    CANCER,
+    LYRA,
+    GEMINI
 ]
 
 export default AllConstellations;

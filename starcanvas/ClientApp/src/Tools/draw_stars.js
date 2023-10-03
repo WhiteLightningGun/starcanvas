@@ -1,8 +1,8 @@
-import AngularDistanceCheck from './angular_distance_check';
-import Orthographic_Project from './orthographic_projection';
+import angularDistanceCheck from './angular_distance_check';
+import orthographicProjection from './orthographic_projection';
 import MaxMagnitudeForFOV from './max_magnitude_for_fov';
 
-function DrawStars(ref, data, radius, RadiusCoFactor, windowWidth, windowHeight, Fov, Dec, Ra){
+function drawStars(ref, data, radius, RadiusCoFactor, windowWidth, windowHeight, Fov, Dec, Ra){
 
     const canvas = ref.current;
     const ctx = canvas.getContext('2d');
@@ -15,9 +15,9 @@ function DrawStars(ref, data, radius, RadiusCoFactor, windowWidth, windowHeight,
         ctx.strokeStyle = data[i].color;
         ctx.fillStyle = data[i].color;
         
-        if(AngularDistanceCheck(Fov, Dec, Ra, data[i].decRad, data[i].raRad)) 
+        if(angularDistanceCheck(Fov, Dec, Ra, data[i].decRad, data[i].raRad)) 
         {
-            let coords = Orthographic_Project(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad ) 
+            let coords = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad ) 
 
             if(data[i].name) {
             // if the star has a name, it is drawn with larger radius
@@ -43,4 +43,4 @@ function DrawStars(ref, data, radius, RadiusCoFactor, windowWidth, windowHeight,
     }
 }
 
-export default DrawStars;
+export default drawStars;
