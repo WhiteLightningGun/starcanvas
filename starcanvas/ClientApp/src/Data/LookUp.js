@@ -1,17 +1,11 @@
-
-/*
-async function LookUp() {
-
-
-const response = await fetch('stars');
-const data = await response.json();
-//console.log(data);
-return data;
-}
-
-export default LookUp;
-
-*/
+/**
+ * Calls the api with fetch, sends arguments in the form: HttpGet("StarFOV/{fov}/{dec}/{ra}"), 
+ * receives set of star data corresponding to specified fov and centered on specified declination and right ascension
+ * @param {*} fov 
+ * @param {*} dec 
+ * @param {*} ra 
+ * @returns 
+ */
 
 async function LookUp(fov, dec, ra) {
 
@@ -22,5 +16,3 @@ return data;
 }
 
 export default LookUp;
-
-// [HttpGet("StarFOV/{fov}/{dec}/{ra}")]

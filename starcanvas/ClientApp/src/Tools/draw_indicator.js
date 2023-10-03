@@ -1,6 +1,6 @@
-import AngularDistanceCheck from './AngularDistanceCheck';
-import Orthographic_Project from './Orthographic_Projection';
-import MaxMagnitudeForFOV from './MaxMagnitudeForFOV';
+import AngularDistanceCheck from './angular_distance_check';
+import Orthographic_Project from './orthographic_projection';
+import MaxMagnitudeForFOV from './max_magnitude_for_fov';
 
   const DrawIndicator = (ref, activeStar, Fov, radius, RadiusCoFactor, Dec, Ra) => {
 

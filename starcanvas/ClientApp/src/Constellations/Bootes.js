@@ -1,5 +1,8 @@
-// Bootes
-let Bootes =  [
+/**
+ * @const BOOTES
+ *  The name comes from Latin: Boōtēs, which comes from Greek: Βοώτης, translit. Boṓtēs 'herdsman' or 'plowman'.
+ */
+export const BOOTES =  [
     [
         [0.23960457902331217, 3.8447363841243773], //Constellation: 30Zet Boo
         [0.3348810354466216, 3.7335754189687074], // Constellation: 16Alp Boo, Arcturus
@@ -12,8 +15,5 @@ let Bootes =  [
         [0.32111592819605206, 3.642001543115966], // Constellation: 8Eta Boo
         [0.2757237263251514, 3.619281840878439], // Constellation: 5Ups Boo
 
-
     ]
 ];
-
-export default Bootes;

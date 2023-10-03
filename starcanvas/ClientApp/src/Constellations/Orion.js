@@ -1,5 +1,8 @@
-// Cassiopeia
-let Orion =  [
+/**
+ * @const ORION
+ * The Hunter
+ */
+export const ORION =  [
     [
         [0.1292771719482902, 1.5497279608529357], // Betelgeuse
         [0.1733838517331632, 1.4623152187176671], // 39Lambda Orion
@@ -46,4 +49,3 @@ let Orion =  [
     ]
 ];
 
-export default Orion;

@@ -1,5 +1,8 @@
-// Libra
-let Libra =  [
+/**
+ * @const LIBRA
+ * The symbol of the scales is based on the Scales of Justice held by Themis, the Greek personification of divine law and custom.
+ */
+export const LIBRA =  [
     [
         [-0.29198699175101517, 4.161845013319492], // Constellation: 46The Lib
         [-0.2581264060936837, 4.082000731787894], // Constellation: 38Gam Lib
@@ -9,5 +12,3 @@ let Libra =  [
         [-0.2581264060936837, 4.082000731787894] // Constellation: 38Gam Lib
     ]
 ];
-
-export default Libra;

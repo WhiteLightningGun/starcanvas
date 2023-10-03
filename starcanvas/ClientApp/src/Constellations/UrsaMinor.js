@@ -1,10 +1,16 @@
+/**
+ * a list of coordinate pairs directing where the pen should start and stop 
+ * Designed to be iterated over coordinates have form [dec, ra] in radians
+ * 
+ */
 
-// a list of coordinate pairs directing where the pen should start and stop
-// Designed to be iterated over
- // coordinates have form [dec, ra] in radians
+/**
+ * 
+ * @const URSAMINOR
+ * The Big Bear
+ */
 
-
-let UrsaMinor =  [
+export const URSAMINOR =  [
     [
     [1.557953113, 0.6622852001], 
     [1.511216532, 4.5911553841], 
@@ -17,5 +23,3 @@ let UrsaMinor =  [
 
     ]
 ];
-
-export default UrsaMinor;

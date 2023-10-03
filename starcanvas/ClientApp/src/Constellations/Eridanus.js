@@ -1,5 +1,8 @@
-// Eridanus, the river to Achernar 
-let Eridanus =  [
+/** 
+ * @const ERIDANUS
+ * Eridanus, the river to Achernar.  
+ * */ 
+export const ERIDANUS =  [
     [
         [-0.24964468799626924,1.2137943848786752], // Constellation: 53 Eri
         [-0.152787450392042, 1.3489055617544097], // Constellation: 69Lam Eri
@@ -33,4 +36,3 @@ let Eridanus =  [
     ]
 ];
 
-export default Eridanus;

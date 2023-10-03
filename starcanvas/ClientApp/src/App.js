@@ -1,10 +1,10 @@
 import React, { useState, useEffect} from 'react'
 import Canvas from './Canvas'
 import Modal from './Components/Modal';
-import LookUp from './Data/LookUp';
-import LookUpID from './Data/LookUpId';
-import DeclinationToRadians from './Tools/DeclinationStringToRadians';
-import RAToRadians from './Tools/RightAscensionToRadians';
+import LookUp from './Data/lookup';
+import LookUpID from './Data/lookupid';
+import DeclinationToRadians from './Tools/declination_string_to_radians';
+import RAToRadians from './Tools/right_asc_to_radians';
 
 function debounce(fn, ms) {
   let timer
@@ -22,9 +22,9 @@ function App() {
 
   //STAR DATA FOR CURRENT FOV AND DEC/RA ARGUMENTS
   const firstStar = [{color: "#F3F8FA", decRad: -0.052839475014189084, id: 107, magnitude: 2.107819904933649, name: "", raRad: 0.007958510275541049}]
-
-  const [starData, setStarData] = useState(firstStar) // initial data to create canvas with before api has responded
+  const [starData, setStarData] = useState(firstStar) // initial data to create canvas with firstStar before api has responded
   const [activeStar, setActiveStar] = useState(false); // use this to store coords of active star with form [dec_RAD, ra_RAD]
+
   //VIEWPORT SETTINGS
   const [currentDecRa, setDecRa] = useState({DecCurrent: 1.57, RaCurrent: 0.7})
   const [fov, setFov] = useState(180);

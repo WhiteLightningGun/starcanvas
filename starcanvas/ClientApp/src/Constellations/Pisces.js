@@ -1,6 +1,9 @@
-//Pisces
+/**
+ * @const PISCES
+ * Constellation of Pisces, the fish.
+ */
 
-let Pisces =  [
+export const PISCES =  [
     [
         [0.5550903925278032, 0.27409570972789044], // Constellation: 69Sig Psc
         [0.47584808256013655, 0.34673713611887275], // Constellation: 90Ups Psc
@@ -25,8 +28,6 @@ let Pisces =  [
         [0.0219185006413489, 6.1388978680503286], // Constellation: 8Kap Psc
         [0.031074142199239346, 6.2048550586519395], // Constellation: 18Lam Psc
         [0.09821585093773604, 6.1956876111633905] // Constellation: 17Iot Psc
-
     ]
 ];
 
-export default Pisces;

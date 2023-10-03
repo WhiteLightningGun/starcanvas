@@ -1,5 +1,8 @@
-// Cassiopeia
-let Cassiopeia =  [
+/**
+ * @const CASSIOPEIA
+ * Named after the vain queen Cassiopeia, mother of Andromeda, in Greek mythology, who boasted about her unrivaled beauty.  
+ */
+export const CASSIOPEIA =  [
     [
         [1.1112536979389396, 0.4991411443065015], //45 Epsilon
         [1.0513061168221332, 0.3744169785694504], // 37 Delta Cassiopeia
@@ -9,5 +12,3 @@ let Cassiopeia =  [
 
     ]
 ];
-
-export default Cassiopeia;

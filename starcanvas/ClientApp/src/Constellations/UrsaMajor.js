@@ -1,4 +1,10 @@
-let UrsaMajor =  [
+/**
+ * 
+ * @const URSAMAJOR
+ * The Big Bear
+ */
+
+export const URSAMAJOR =  [
     [
         [0.8606795002919985, 3.610835048564686], //Alkaid
         [0.9585503968763104, 3.5078234352584823], //Mizar
@@ -40,5 +46,3 @@ let UrsaMajor =  [
     ]
 
 ];
-
-export default UrsaMajor;

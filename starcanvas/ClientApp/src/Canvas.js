@@ -1,14 +1,14 @@
 import React from 'react'
-import useCanvas from './useCanvas'
+import useCanvas from './use_canvas'
 import './Components/css/canvas.css';
-import Orthographic_Project from './Tools/Orthographic_Projection';
-import DistanceMagnitude from './Tools/DistanceMagnitude';
-import NewCoFactor from './Tools/NewCoFactor';
-import WriteCurrentDecRa from './Tools/WriteCurrentDecRa';
-import DrawConstellations from './Tools/DrawConstellations';
-import ClearCanvas from './Tools/ClearCanvas';
-import DrawStars from './Tools/DrawStars';
-import DrawIndicator from './Tools/DrawIndicator';
+import Orthographic_Project from './Tools/orthographic_projection';
+import DistanceMagnitude from './Tools/distance_magnitude';
+import NewCoFactor from './Tools/new_cofactor';
+import writeCurrentDecRa from './Tools/write_current_dec_ra';
+import DrawConstellations from './Tools/draw_constellations';
+import clearCanvas from './Tools/clear_canvas';
+import DrawStars from './Tools/draw_stars';
+import DrawIndicator from './Tools/draw_indicator';
 
 //import AngularDistanceCheck from './Tools/AngularDistanceCheck';
 
@@ -25,6 +25,7 @@ const Canvas = props => {
   let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
   let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
   let fovHysteresis = 800; // units are ms
+  let bgColour = '#02071a' // dark blue
 
   const draw = (ctx, frameCount) => {
 
@@ -43,8 +44,8 @@ const Canvas = props => {
     //Text and labels
     ctx.font = "12px Arial";
 
-    ClearCanvas(canvasRef, '#02071a');
-    WriteCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
+    clearCanvas(canvasRef, bgColour);
+    writeCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
     DrawConstellations(canvasRef, Fov, Dec, Ra, radius, RadiusCoFactor);
 
     // Indicator
