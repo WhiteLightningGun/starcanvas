@@ -94,7 +94,7 @@ function App() {
         setMessage(`waiting for api return`); 
         lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
     }
-    else if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.33, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) || fov != lastDataCoords[2] ){
+    else if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) || fov != lastDataCoords[2] ){
 
       //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
       console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
@@ -109,6 +109,23 @@ function App() {
         setMessage(`waiting for api return...`); 
     }
 
+    setTimeout( () => {
+
+      if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) && lastDataCoords[2] === fov ){
+
+        //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
+        console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
+        lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
+        LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
+  
+          lastData = {...result}; 
+          setStarData(lastData); 
+          dataAge = Date.now();
+          setMessage(`done, lastData updated`);
+          } );
+          setMessage(`waiting for api return...`); 
+      }
+    }, 1500)
 
       
     const debouncedHandleResize = debounce(function handleResize() {

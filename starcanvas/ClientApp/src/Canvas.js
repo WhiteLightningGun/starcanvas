@@ -11,6 +11,8 @@ import DrawStars from './Tools/draw_stars';
 import DrawIndicator from './Tools/draw_indicator';
 import angularDistanceCheck from './Tools/angular_distance_check';
 
+let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
+
 const Canvas = props => {  
   const {width, height, clickX, clickY, coordsChanger, starData, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
 
@@ -21,9 +23,9 @@ const Canvas = props => {
   let currentMousePosition = [0, 0]; // stores (x,y) coordinates as [x,y]
   let mouseDownPositionDecRa = [0, 0, 0, 0]; // stores (x,y) coordinates and Declination, Right Ascension at moment of mouse click
   let RadiusCoFactor = radiusCofactor; //scales the orthographic calculation results to fit neatly to the current screen proportions
-  let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
+  
   let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
-  let fovHysteresis = 100; // units are ms
+  let fovHysteresis = 500; // units are ms
   let bgColour = '#02071a' // dark blue
 
 
