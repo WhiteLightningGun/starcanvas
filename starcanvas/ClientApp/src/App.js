@@ -81,12 +81,8 @@ function App() {
     //Grab data from API using current canvas conditions, this should only happen if the canvas declination + RA has changed sufficiently
     //clearTimeout(timeOut)
 
-    const interval = setInterval(() => {
-
-      
     if(!lastData && !(promising instanceof Promise)){ // when program is first loaded and lastData is empty/undefined
       console.log("calling lookup from if");
-
       promising = LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
           lastData = {...result};
           dataAge = Date.now();
@@ -96,11 +92,9 @@ function App() {
           setStarData(lastData);
           } ); 
         setMessage(`waiting for api return`); 
-
+        lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
     }
-    else if(dataAge + 1000 < Date.now() 
-    && !angularDistanceCheck(fov*0.33, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)
-  || lastDataCoords[2] != fov ){
+    else if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.33, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) || fov != lastDataCoords[2] ){
 
       //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
       console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
@@ -114,8 +108,7 @@ function App() {
         } );
         setMessage(`waiting for api return...`); 
     }
-    
-    }, 1000)
+
 
       
     const debouncedHandleResize = debounce(function handleResize() {
@@ -129,7 +122,6 @@ function App() {
 
     //CLEAN UP FUNCTION 
     return _ => {
-      clearInterval(interval);
       window.removeEventListener('resize', debouncedHandleResize)
     }
   }, [centreCoords, dimensions, currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov])
