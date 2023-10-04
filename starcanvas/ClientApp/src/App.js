@@ -5,6 +5,7 @@ import LookUp from './Data/lookup';
 import LookUpID from './Data/lookupid';
 import DeclinationToRadians from './Tools/declination_string_to_radians';
 import RAToRadians from './Tools/right_asc_to_radians';
+import angularDistanceCheck from './Tools/angular_distance_check';
 
 function debounce(fn, ms) {
   let timer
@@ -17,7 +18,10 @@ function debounce(fn, ms) {
   };
 }
 
-let timeOut; // out of scope variable essential for making setTimeout work as intended
+let lastData;
+let lastDataCoords;
+let dataAge;
+let promising;
 
 function App() {
 
@@ -32,7 +36,7 @@ function App() {
   const [radiusCofactor, setCoFactor] = useState(0.4);
 
   //MODAL WINDOW VARIABLES
-  const [modalActive, setModal] = useState(false);
+  const [modalActive, setModal] = useState(true);
   const [modalMessage, setMessage] = useState('Click star for data');
   const [modalData, setModalData] = useState('No data available');
 
@@ -58,12 +62,6 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
-  /*
-    LookUp(fov, ra, dec).then( (result) => {
-      setStarData({...result});
-      } );
-  */
-    //while awaiting return, it may be worth freezing further changes to the canvas position and drawing spinning icon
 
   }
 
@@ -80,15 +78,44 @@ function App() {
 
   useEffect(() => {
     
-    //Grab data from API using current canvas conditions
-    clearTimeout(timeOut)
-    timeOut = setTimeout( () => {
+    //Grab data from API using current canvas conditions, this should only happen if the canvas declination + RA has changed sufficiently
+    //clearTimeout(timeOut)
+
+    const interval = setInterval(() => {
+
+      
+    if(!lastData && !(promising instanceof Promise)){ // when program is first loaded and lastData is empty/undefined
+      console.log("calling lookup from if");
+
+      promising = LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
+          lastData = {...result};
+          dataAge = Date.now();
+          lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent]
+          setMessage(`done, lastData updated`);
+          //trigger update
+          setStarData(lastData);
+          } ); 
+        setMessage(`waiting for api return`); 
+
+    }
+    else if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.33, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)){
+
+      //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
+      lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent]
       LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
 
-        setStarData({...result});
-        } ); 
+        lastData = {...result}; 
+        setStarData(lastData); 
+        dataAge = Date.now();
+        setMessage(`done, lastData updated`);
+        } );
+        setMessage(`waiting for api return...`); 
+    }
+      
+      console.log("I'm intervoooming!!! ")
+    
+    }, 1000)
 
-    }, 500)
       
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({ height: window.innerHeight, width: window.innerWidth })
@@ -98,7 +125,10 @@ function App() {
       }, 200)
 
     window.addEventListener('resize', debouncedHandleResize)
+
+    //CLEAN UP FUNCTION 
     return _ => {
+      clearInterval(interval);
       window.removeEventListener('resize', debouncedHandleResize)
     }
   }, [centreCoords, dimensions, currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov])
@@ -114,7 +144,8 @@ function App() {
     //use this function to grab data from api using fov, ra, and dec
     console.log('updateData called')
     LookUp(fov, ra, dec).then( (result) => {
-      setStarData({...result});
+      //setStarData({...result});
+      lastData = {...result};
       } );
   }
 
@@ -135,7 +166,7 @@ function App() {
     clickY={currentCoords.y} 
     coordsChanger={coordsChanger}
     updateData={updateData}
-    data = {starData}
+    starData = {starData}
     currentDecRa = {currentDecRa}
     changeDecRa={changeDecRa}
     radiusCofactor={radiusCofactor}

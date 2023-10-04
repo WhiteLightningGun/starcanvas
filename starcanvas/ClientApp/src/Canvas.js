@@ -9,9 +9,10 @@ import DrawConstellations from './Tools/draw_constellations';
 import clearCanvas from './Tools/clear_canvas';
 import DrawStars from './Tools/draw_stars';
 import DrawIndicator from './Tools/draw_indicator';
+import angularDistanceCheck from './Tools/angular_distance_check';
 
 const Canvas = props => {  
-  const {width, height, clickX, clickY, coordsChanger, data, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
+  const {width, height, clickX, clickY, coordsChanger, starData, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
 
   let Fov = fov;
   let Ra = currentDecRa.RaCurrent;
@@ -24,6 +25,7 @@ const Canvas = props => {
   let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
   let fovHysteresis = 100; // units are ms
   let bgColour = '#02071a' // dark blue
+
 
   const draw = (ctx, frameCount) => {
 
@@ -48,9 +50,9 @@ const Canvas = props => {
     // Indicator
     if(activeStar){
 
-      DrawIndicator(canvasRef, activeStar, Fov, radius, RadiusCoFactor, Dec, Ra);
+    DrawIndicator(canvasRef, activeStar, Fov, radius, RadiusCoFactor, Dec, Ra);
     }
-    DrawStars(canvasRef, data, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
+    DrawStars(canvasRef, starData, radius, RadiusCoFactor, window.innerWidth, window.innerHeight, Fov, Dec, Ra);
 
   }
 
@@ -82,12 +84,8 @@ const Canvas = props => {
   const mouseUpped = (e) => {
 
     clickActive = false;
-    expectingDataUpdate = true;
-    fovAdjustTime = Date.now();
-
     changeDecRa(Dec, Ra);
-    //setCoFactor(RadiusCoFactor);
-    //setFov(Fov);
+
   }
 
   const currentMousPos = (e) => {
@@ -158,16 +156,16 @@ const Canvas = props => {
   // uses coordinates of mouse click to identify which star was clicked
   const LookUpStarLocation = (x,y) => {
 
-    let objectLength = Object.keys(data).length;
+    let objectLength = Object.keys(starData).length;
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight 
 
     for(let i = 0 ; i < objectLength ; i++){
     
-      let coords = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, data[i].decRad, data[i].raRad )
+      let coords = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, starData[i].decRad, starData[i].raRad )
 
       if ( distanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
-        console.log(`Found star with DB id: ${data[i].id}, names: ${data[i].name} `);
-        UpdateModalWithStarData(data[i].id);
+        console.log(`Found star with DB id: ${starData[i].id}, names: ${starData[i].name} `);
+        UpdateModalWithStarData(starData[i].id);
         return;
       }
     }
