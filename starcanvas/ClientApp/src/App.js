@@ -17,6 +17,7 @@ function debounce(fn, ms) {
   };
 }
 
+let timeOut; // out of scope variable essential for making setTimeout work as intended
 
 function App() {
 
@@ -57,11 +58,11 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
-      /*
+  /*
     LookUp(fov, ra, dec).then( (result) => {
       setStarData({...result});
       } );
-*/
+  */
     //while awaiting return, it may be worth freezing further changes to the canvas position and drawing spinning icon
 
   }
@@ -76,28 +77,31 @@ function App() {
   const [currentCoords, setCurrentCoords] = useState({x: window.innerWidth, y: window.innerHeight});
   const [centreCoords, setCurrentCentre] = useState({centreX: 0.5*window.innerWidth, centreY: 0.5*window.innerHeight});
 
+
   useEffect(() => {
     
     //Grab data from API using current canvas conditions
-    LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
+    clearTimeout(timeOut)
+    timeOut = setTimeout( () => {
+      LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
 
-      setStarData({...result});
-      } ); 
+        setStarData({...result});
+        } ); 
+
+    }, 500)
       
-    
-    
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({ height: window.innerHeight, width: window.innerWidth })
       setCurrentCoords({ x: dimensions.width * Math.random(), y: dimensions.height * Math.random() });
       setCurrentCentre({ centreX: dimensions.width * 0.5, centreY: dimensions.height * 0.5 });
       setMessage(`fov: ${fov} `)
-      }, 100)
+      }, 200)
 
     window.addEventListener('resize', debouncedHandleResize)
     return _ => {
       window.removeEventListener('resize', debouncedHandleResize)
     }
-  }, [centreCoords, dimensions, fov])
+  }, [centreCoords, dimensions, currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov])
 
   //HANDLER FUNCTIONS
 
