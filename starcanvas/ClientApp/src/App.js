@@ -50,12 +50,13 @@ function App() {
       setActiveStar([dec_RAD, ra_RAD]);
       setMessage(` ** [${dec_RAD}, ${ra_RAD}], // Constellation: ${result[0].bayerFlamsteed} `);
       setModalData(result[0]);
-      console.log(result);
+      setLockOut(false);
     });
 
     // while awaiting LookUpID to finishing fetching data 
     setModal(true);
-    setMessage(`Retrieving Data... `)
+    setMessage(`Retrieving Data... `);
+    setLockOut(true);
 
   }
 
@@ -64,8 +65,6 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
-    //setLockOut(true);
-
   }
 
   //CANVAS DIMENSIONS
@@ -81,9 +80,6 @@ function App() {
 
   useEffect(() => {
     
-    //Grab data from API using current canvas conditions, this should only happen if the canvas declination + RA has changed sufficiently
-    //clearTimeout(timeOut)
-
     if(!lastData && !(promising instanceof Promise)){ // when program is first loaded and lastData is empty/undefined
 
       promising = LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
@@ -93,14 +89,14 @@ function App() {
           setMessage(`done, lastData updated`);
           //trigger update
           setStarData(lastData);
-          } ); 
+          setLockOut(false);
+          } );
+        setLockOut(true);
         setMessage(`waiting for api return`); 
         lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
     }
     else if((dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)) || fov !== lastDataCoords[2] ){
 
-      //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
-      console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
       lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
       LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
 
@@ -110,6 +106,7 @@ function App() {
         setMessage(`done, lastData updated`);
         setLockOut(false);
         } );
+        setLockOut(true);
         setMessage(`waiting for api return...`); 
     }
 
@@ -128,6 +125,7 @@ function App() {
           setMessage(`done, lastData updated`);
           setLockOut(false);
           } );
+          setLockOut(true);
           setMessage(`waiting for api return...`); 
       }
     }, 1500)
@@ -156,22 +154,7 @@ function App() {
     setActiveStar(false);
   }
 
-  function updateData(fov, ra, dec){
-    //use this function to grab data from api using fov, ra, and dec
-    console.log('updateData called')
-    LookUp(fov, ra, dec).then( (result) => {
-      //setStarData({...result});
-      lastData = {...result};
-      } );
-  }
-
-  const coordsChanger = (x,y) => {
-    setCurrentCoords({ x: x, y: y })
-    setCurrentCentre({ centreX: dimensions.width * 0.5, centreY: dimensions.height * 0.5 })
-  }
-
   function changeDecRa(dec, ra){
-
     setDecRa({DecCurrent: dec, RaCurrent: ra});
   }
 
@@ -180,8 +163,6 @@ function App() {
     height={dimensions.height}
     clickX={currentCoords.x}
     clickY={currentCoords.y} 
-    coordsChanger={coordsChanger}
-    updateData={updateData}
     starData = {starData}
     currentDecRa = {currentDecRa}
     changeDecRa={changeDecRa}
@@ -190,14 +171,15 @@ function App() {
     setCoFactor={setCoFactor}
     setFov={setFov}
     UpdateModalWithStarData={UpdateModalWithStarData}
-    GeneralUpdate= {GeneralUpdate}
+    GeneralUpdate={GeneralUpdate}
     activeStar={activeStar}
     lockedOut={lockedOut}
     setLockOut={setLockOut}
 
     />
     
-    <Modal active={modalActive} handleModalClick={handleModalClick} message={modalMessage} modalData={modalData} /> </>
+    <Modal active={modalActive} handleModalClick={handleModalClick} message={modalMessage} modalData={modalData} /> 
+    </>
 }
 
 export default App

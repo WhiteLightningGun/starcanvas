@@ -15,7 +15,7 @@ let expectingDataUpdate = false;
 let permitZooming = true;
 
 const Canvas = props => {  
-  const {width, height, clickX, clickY, coordsChanger, starData, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, lockedOut, setLockOut, ...rest } = props
+  const {width, height, clickX, clickY, starData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, lockedOut, setLockOut, ...rest } = props
 
   let Fov = fov;
   let Ra = currentDecRa.RaCurrent;
@@ -69,7 +69,6 @@ const Canvas = props => {
     const y = e.clientY - rect.top
     //call coordsChange function here
 
-    coordsChanger(x, y)
 
     //look compare x,y location to all stars in current draw pipeline
     LookUpStarLocation(x,y);
@@ -101,7 +100,8 @@ const Canvas = props => {
 
   const mouseWheeled = (e) =>{
 
-    if(!permitZooming && !lockedOut){
+    if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
+      console.log('mouse wheel officially stopped')
       return;
     }
     if(e.deltaY > 0 && Fov > 40){ // Min Fov is now 40 degrees
@@ -170,7 +170,6 @@ const Canvas = props => {
       let coords = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, starData[i].decRad, starData[i].raRad )
 
       if ( distanceMagnitude(coords[0] + 0.5*window.innerWidth, coords[1]  + 0.5*window.innerHeight, x, y) < 10){
-        console.log(`Found star with DB id: ${starData[i].id}, names: ${starData[i].name} `);
         UpdateModalWithStarData(starData[i].id);
         return;
       }
