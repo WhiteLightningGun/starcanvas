@@ -18,10 +18,10 @@ function debounce(fn, ms) {
   };
 }
 
-let lastData;
-let lastDataCoords;
-let dataAge;
-let promising;
+let lastData; // literally, the last starData blob received from the API
+let lastDataCoords; // the coords [Dec, Ra, Fov] on which lastData is centered
+let dataAge; // the unix era timestamp associated with lastData and lastDataCoords
+let promising; // used to monitor whether a LookUp (api call) is currently in progress
 
 function App() {
 
@@ -36,13 +36,15 @@ function App() {
   const [radiusCofactor, setCoFactor] = useState(0.4);
 
   //MODAL WINDOW VARIABLES
-  const [modalActive, setModal] = useState(true);
+  const [modalActive, setModal] = useState(false);
   const [modalMessage, setMessage] = useState('Click star for data');
   const [modalData, setModalData] = useState('No data available');
 
+  //CONTROL VARIABLES
+  const [lockedOut, setLockOut] = useState(false);
+
   const UpdateModalWithStarData = (starId) => {
     LookUpID(starId).then( (result) => {
-      
       let dec_RAD = DeclinationToRadians(result[0].decRad);
       let ra_RAD = RAToRadians(result[0].raRad);
       setActiveStar([dec_RAD, ra_RAD]);
@@ -62,6 +64,7 @@ function App() {
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
+    //setLockOut(true);
 
   }
 
@@ -82,7 +85,7 @@ function App() {
     //clearTimeout(timeOut)
 
     if(!lastData && !(promising instanceof Promise)){ // when program is first loaded and lastData is empty/undefined
-      console.log("calling lookup from if");
+
       promising = LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
           lastData = {...result};
           dataAge = Date.now();
@@ -94,7 +97,7 @@ function App() {
         setMessage(`waiting for api return`); 
         lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
     }
-    else if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) || fov != lastDataCoords[2] ){
+    else if((dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)) || fov !== lastDataCoords[2] ){
 
       //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
       console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
@@ -105,13 +108,14 @@ function App() {
         setStarData(lastData); 
         dataAge = Date.now();
         setMessage(`done, lastData updated`);
+        setLockOut(false);
         } );
         setMessage(`waiting for api return...`); 
     }
 
-    setTimeout( () => {
+    const finalCheck = setTimeout( () => {
 
-      if(dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent) && lastDataCoords[2] === fov ){
+      if((dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)) && lastDataCoords[2] === fov ){
 
         //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
         console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
@@ -122,6 +126,7 @@ function App() {
           setStarData(lastData); 
           dataAge = Date.now();
           setMessage(`done, lastData updated`);
+          setLockOut(false);
           } );
           setMessage(`waiting for api return...`); 
       }
@@ -139,6 +144,7 @@ function App() {
 
     //CLEAN UP FUNCTION 
     return _ => {
+      clearTimeout(finalCheck);
       window.removeEventListener('resize', debouncedHandleResize)
     }
   }, [centreCoords, dimensions, currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov])
@@ -186,6 +192,8 @@ function App() {
     UpdateModalWithStarData={UpdateModalWithStarData}
     GeneralUpdate= {GeneralUpdate}
     activeStar={activeStar}
+    lockedOut={lockedOut}
+    setLockOut={setLockOut}
 
     />
     

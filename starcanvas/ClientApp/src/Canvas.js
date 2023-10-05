@@ -9,12 +9,13 @@ import DrawConstellations from './Tools/draw_constellations';
 import clearCanvas from './Tools/clear_canvas';
 import DrawStars from './Tools/draw_stars';
 import DrawIndicator from './Tools/draw_indicator';
-import angularDistanceCheck from './Tools/angular_distance_check';
 
 let fovAdjustTime; //keeps track of the last time the fov was adjusted, after a certain period with no change then the api will be called again
+let expectingDataUpdate = false;
+let permitZooming = true;
 
 const Canvas = props => {  
-  const {width, height, clickX, clickY, coordsChanger, starData, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, ...rest } = props
+  const {width, height, clickX, clickY, coordsChanger, starData, updateData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, lockedOut, setLockOut, ...rest } = props
 
   let Fov = fov;
   let Ra = currentDecRa.RaCurrent;
@@ -23,27 +24,28 @@ const Canvas = props => {
   let currentMousePosition = [0, 0]; // stores (x,y) coordinates as [x,y]
   let mouseDownPositionDecRa = [0, 0, 0, 0]; // stores (x,y) coordinates and Declination, Right Ascension at moment of mouse click
   let RadiusCoFactor = radiusCofactor; //scales the orthographic calculation results to fit neatly to the current screen proportions
-  
-  let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
+  expectingDataUpdate = false; // back to false upon reinitialisation
+  //let expectingDataUpdate = false; // if true then the api will be called after alloted time relative to that stored in fovAdjustTime
+  permitZooming = true;
   let fovHysteresis = 500; // units are ms
   let bgColour = '#02071a' // dark blue
 
 
   const draw = (ctx, frameCount) => {
-
+    
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       //call api if current time exceeds fovAdjustTime by the hysteresis setting
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
+      permitZooming = false;
+      setLockOut(true);
     }
 
-    if(clickActive){
+    
+    if(clickActive && !expectingDataUpdate && !lockedOut){
       AdjustDecRa();
     }
 
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight //will choose the longest dimension
-    
-    //Text and labels
-    ctx.font = "12px Arial";
 
     clearCanvas(canvasRef, bgColour);
     writeCurrentDecRa(canvasRef, Dec, Ra, 1, window.innerHeight -25);
@@ -99,25 +101,27 @@ const Canvas = props => {
 
   const mouseWheeled = (e) =>{
 
-    if(e.deltaY > 0 && Fov > 30){ // Min Fov is now 30 degrees
-      Fov = Fov - 10;
+    if(!permitZooming && !lockedOut){
+      return;
+    }
+    if(e.deltaY > 0 && Fov > 40){ // Min Fov is now 40 degrees
+      Fov = Fov - 14;
       RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
-    else if (e.delta > 0 && Fov === 30){
+    else if (e.delta > 0 && Fov === 40){
       return;
     }
     else if (e.deltaY < 0 && Fov < 180) {
-      Fov = Fov + 10;
+      Fov = Fov + 14;
       RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
-
   }
 
-  const DoubleClick = () =>{
+  const DoubleClick = () => {
     changeDecRa(Dec, Ra);
     setCoFactor(RadiusCoFactor);
     setFov(Fov);
@@ -131,8 +135,8 @@ const Canvas = props => {
       // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
     }
     else{
-    let relativeX = (mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
-    let relativeY = -(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
+    let relativeX = 0.5*(mouseDownPositionDecRa[0] - currentMousePosition[0])/window.innerWidth;
+    let relativeY = -0.5*(mouseDownPositionDecRa[1] - currentMousePosition[1])/window.innerHeight;
 
     if( // declination values are limited from 1.57 down to -1.57
         relativeY*Math.PI + mouseDownPositionDecRa[2] < 1.57 

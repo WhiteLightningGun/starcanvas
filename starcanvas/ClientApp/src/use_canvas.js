@@ -8,6 +8,10 @@ const useCanvas = draw => {
     
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
+
+    //Text and labels
+    context.font = "12px Arial";
+
     let frameCount = 0
     let animationFrameId
 
