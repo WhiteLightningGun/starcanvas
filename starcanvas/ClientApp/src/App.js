@@ -6,6 +6,7 @@ import LookUpID from './Data/lookupid';
 import DeclinationToRadians from './Tools/declination_string_to_radians';
 import RAToRadians from './Tools/right_asc_to_radians';
 import angularDistanceCheck from './Tools/angular_distance_check';
+import newCoFactor from './Tools/new_cofactor';
 
 function debounce(fn, ms) {
   let timer
@@ -60,11 +61,15 @@ function App() {
 
   }
 
-  const GeneralUpdate = (fov, dec, ra, radiuscofactor, x, y) => {
+  const GeneralUpdate = (fov, dec, ra, radiuscofactor) => {
 
     setFov(fov);
     setDecRa({DecCurrent: dec, RaCurrent: ra});
     setCoFactor(radiuscofactor);
+  }
+
+  const changeRadiusFactor = (newRadiusactor) =>{
+    
   }
 
   //CANVAS DIMENSIONS
@@ -86,13 +91,12 @@ function App() {
           lastData = {...result};
           dataAge = Date.now();
           lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
-          setMessage(`done, lastData updated`);
-          //trigger update
           setStarData(lastData);
           setLockOut(false);
+          setMessage(`done`);
           } );
         setLockOut(true);
-        setMessage(`waiting for api return`); 
+        setMessage(`loading...`); 
         lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
     }
     else if((dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)) || fov !== lastDataCoords[2] ){
@@ -103,19 +107,18 @@ function App() {
         lastData = {...result}; 
         setStarData(lastData); 
         dataAge = Date.now();
-        setMessage(`done, lastData updated`);
+        setMessage(`done`);
         setLockOut(false);
         } );
         setLockOut(true);
-        setMessage(`waiting for api return...`); 
+        setMessage(`loading...`); 
     }
 
     const finalCheck = setTimeout( () => {
 
       if((dataAge + 1000 < Date.now() && !angularDistanceCheck(fov*0.20, lastDataCoords[0], lastDataCoords[1], currentDecRa.DecCurrent, currentDecRa.RaCurrent)) && lastDataCoords[2] === fov ){
 
-        //associate time stamp with lastData, only trigger api call + update if more than 1 second has passed since last download and fov,dec,ra have changed significantly
-        console.log(`lastDataCoords[2]: ${lastDataCoords[2]}  fov: ${fov}`);
+        setLockOut(true);
         lastDataCoords = [currentDecRa.DecCurrent, currentDecRa.RaCurrent, fov]
         LookUp(fov, currentDecRa.DecCurrent, currentDecRa.RaCurrent).then( (result) => {
   
@@ -155,6 +158,11 @@ function App() {
   }
 
   function changeDecRa(dec, ra){
+
+    if(currentDecRa.DecCurrent === dec && currentDecRa.RaCurrent === ra){
+      console.log('nothing happens!')
+      return;
+    }
     setDecRa({DecCurrent: dec, RaCurrent: ra});
   }
 

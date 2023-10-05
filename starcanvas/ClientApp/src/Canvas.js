@@ -1,4 +1,5 @@
 import React from 'react'
+import {memo} from 'react';
 import useCanvas from './use_canvas'
 import './Components/css/canvas.css';
 import orthographicProjection from './Tools/orthographic_projection';
@@ -33,14 +34,13 @@ const Canvas = props => {
 
   const draw = (ctx, frameCount) => {
     
+    //console.log(`radiusCofactor: ${radiusCofactor}, locally: ${RadiusCoFactor} `)
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
-      //call api if current time exceeds fovAdjustTime by the hysteresis setting
       GeneralUpdate(Fov, Dec, Ra, RadiusCoFactor, window.innerWidth/2, window.innerHeight/2);
       permitZooming = false;
       setLockOut(true);
     }
 
-    
     if(clickActive && !expectingDataUpdate && !lockedOut){
       AdjustDecRa();
     }
@@ -64,27 +64,36 @@ const Canvas = props => {
   const canvasRef = useCanvas(draw)
 
   const handleClick = (e) => {
+
+    if(lockedOut){
+      return;
+    }
     const rect = canvasRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     //call coordsChange function here
-
 
     //look compare x,y location to all stars in current draw pipeline
     LookUpStarLocation(x,y);
   }
 
   const mousedowned = (e) => {
+    if(lockedOut){
+      return;
+    }
     const rect = canvasRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
     mouseDownPositionDecRa = [x, y, Dec, Ra]
-
     clickActive = true;
   }
 
   const mouseUpped = (e) => {
+
+    if(lockedOut){
+      return;
+    }
 
     clickActive = false;
     changeDecRa(Dec, Ra);
@@ -92,6 +101,10 @@ const Canvas = props => {
   }
 
   const currentMousPos = (e) => {
+
+    if(lockedOut){
+      return;
+    }
     const rect = canvasRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -99,6 +112,10 @@ const Canvas = props => {
   }
 
   const mouseWheeled = (e) =>{
+
+    if(lockedOut){
+      return;
+    }
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
       console.log('mouse wheel officially stopped')
@@ -122,6 +139,10 @@ const Canvas = props => {
   }
 
   const DoubleClick = () => {
+
+    if(lockedOut){
+      return;
+    }
     changeDecRa(Dec, Ra);
     setCoFactor(RadiusCoFactor);
     setFov(Fov);
@@ -130,6 +151,10 @@ const Canvas = props => {
   // UTILITY CLASSES FOR USE BY THE CANVAS
   //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
   const AdjustDecRa = () => {
+
+    if(lockedOut){
+      return;
+    }
   
     if(currentMousePosition[0] === 0 && currentMousePosition[1] === 0){
       // this fixes edge case where clicking in the same place twice without moving pointer causes bad stuff to happen
@@ -161,6 +186,10 @@ const Canvas = props => {
 
   // uses coordinates of mouse click to identify which star was clicked
   const LookUpStarLocation = (x,y) => {
+
+    if(lockedOut){
+      return;
+    }
 
     let objectLength = Object.keys(starData).length;
     let radius = window.innerWidth >= window.innerHeight ?  window.innerWidth : window.innerHeight 
