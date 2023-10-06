@@ -16,7 +16,7 @@ let expectingDataUpdate = false;
 let permitZooming = true;
 
 const Canvas = props => {  
-  const {width, height, clickX, clickY, starData, currentDecRa , changeDecRa, radiusCofactor, fov, setCoFactor, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, lockedOut, setLockOut, ...rest } = props
+  const {width, height, starData, currentDecRa , changeDecRa, radiusCofactor, setCoFactor, fov, setFov, UpdateModalWithStarData, GeneralUpdate, activeStar, lockedOut, setLockOut, ...rest } = props
 
   let Fov = fov;
   let Ra = currentDecRa.RaCurrent;
@@ -30,7 +30,6 @@ const Canvas = props => {
   permitZooming = true;
   let fovHysteresis = 500; // units are ms
   let bgColour = '#02071a' // dark blue
-
 
   const draw = (ctx, frameCount) => {
     
@@ -71,9 +70,7 @@ const Canvas = props => {
     const rect = canvasRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    //call coordsChange function here
 
-    //look compare x,y location to all stars in current draw pipeline
     LookUpStarLocation(x,y);
   }
 
@@ -113,25 +110,25 @@ const Canvas = props => {
 
   const mouseWheeled = (e) =>{
 
+    changeDecRa(Dec, Ra);
     if(lockedOut){
       return;
     }
 
     if(expectingDataUpdate && Date.now() > (fovAdjustTime + fovHysteresis)){
-      console.log('mouse wheel officially stopped')
       return;
     }
-    if(e.deltaY > 0 && Fov > 40){ // Min Fov is now 40 degrees
-      Fov = Fov - 14;
+    if(e.deltaY > 0 && Fov > 30){ // Min Fov is now 40 degrees
+      Fov = Fov - 10;
       RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
     }
-    else if (e.delta > 0 && Fov === 40){
+    else if (e.delta > 0 && Fov === 30){
       return;
     }
     else if (e.deltaY < 0 && Fov < 180) {
-      Fov = Fov + 14;
+      Fov = Fov + 10;
       RadiusCoFactor = newCoFactor(Fov); // this is not a react state change and does not trigger re-render
       fovAdjustTime = Date.now();
       expectingDataUpdate = true;
@@ -149,7 +146,7 @@ const Canvas = props => {
   }
 
   // UTILITY CLASSES FOR USE BY THE CANVAS
-  //Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
+  // Changes the Declination and Right Ascension setting of the canvas class according to mouse clicks and movements
   const AdjustDecRa = () => {
 
     if(lockedOut){

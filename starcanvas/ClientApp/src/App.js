@@ -26,7 +26,7 @@ let promising; // used to monitor whether a LookUp (api call) is currently in pr
 
 function App() {
 
-  //STAR DATA FOR CURRENT FOV AND DEC/RA ARGUMENTS
+  //STAR DATA FOR INITIAL FOV AND DEC/RA ARGUMENTS
   const firstStar = [{color: "#F3F8FA", decRad: -0.052839475014189084, id: 107, magnitude: 2.107819904933649, name: "", raRad: 0.007958510275541049}]
   const [starData, setStarData] = useState(firstStar) // initial data to create canvas with firstStar before api has responded
   const [activeStar, setActiveStar] = useState(false); // use this to store coords of active star with form [dec_RAD, ra_RAD]
@@ -68,12 +68,7 @@ function App() {
     setCoFactor(radiuscofactor);
   }
 
-  const changeRadiusFactor = (newRadiusactor) =>{
-    
-  }
-
-  //CANVAS DIMENSIONS
-
+  //CANVAS DIMENSIONSs
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth
@@ -136,7 +131,6 @@ function App() {
       
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({ height: window.innerHeight, width: window.innerWidth })
-      setCurrentCoords({ x: dimensions.width * Math.random(), y: dimensions.height * Math.random() });
       setCurrentCentre({ centreX: dimensions.width * 0.5, centreY: dimensions.height * 0.5 });
       setMessage(`fov: ${fov} `)
       }, 200)
@@ -160,7 +154,6 @@ function App() {
   function changeDecRa(dec, ra){
 
     if(currentDecRa.DecCurrent === dec && currentDecRa.RaCurrent === ra){
-      console.log('nothing happens!')
       return;
     }
     setDecRa({DecCurrent: dec, RaCurrent: ra});
@@ -169,8 +162,6 @@ function App() {
   return <><Canvas
     width={dimensions.width}
     height={dimensions.height}
-    clickX={currentCoords.x}
-    clickY={currentCoords.y} 
     starData = {starData}
     currentDecRa = {currentDecRa}
     changeDecRa={changeDecRa}

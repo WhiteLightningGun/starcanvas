@@ -21,10 +21,6 @@ public class StarsController : ControllerBase
     [HttpGet]
     public JsonResult Get()
     {
-        // var Pisces = starsDBContext.Star.Where(x => x.BayerFlamsteed!.Contains("Psc")).Select( x => x.Id).ToList(); // list of ids associated with Psc, 
-        // n.b. not possible to look up stars by constellation with stars_draw db which has names only
-
-        //var res = starsDBContext.StarDraw.Select(x => x).Where(x => Pisces.Contains(x.Id)); // return all stars
 
         Span<StarsDraw> Brightest = starsDBContext.StarDraw.Select(x => x).Where(x => x.Magnitude > 3).ToArray(); // will return brightest stars Magnitude is actually radius here...
 
@@ -38,13 +34,6 @@ public class StarsController : ControllerBase
         }
 
         return new JsonResult(result);
-    }
-
-    [HttpGet("GetHello")] //defines route to this method
-    public string GetHello()
-    {
-        Console.WriteLine("hello world, from StarsController/GetHello ?");
-        return "hello world, from StarsController/GetHello";
     }
 
     [HttpGet("IDLookUp")]
@@ -72,7 +61,6 @@ public class StarsController : ControllerBase
         Console.WriteLine($"ARGS RECEIVED = fov: {fov}, dec: {dec}, ra: {ra}");
 
         Span<StarsDraw> Brightest = starsDBContext.StarDraw.Select(x => x).Where(x => x.Magnitude >= maxMagnitudeRounded).ToArray(); // will return brightest stars Magnitude is actually radius here...
-
         List<StarsDraw> result = new();
 
         foreach(StarsDraw s in Brightest){

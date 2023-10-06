@@ -8,7 +8,10 @@ function DrawConstellations(ref, Fov, Dec, Ra, radius, RadiusCoFactor, lineColou
 
     ctx.lineWidth = 2;
 
-    // // This should be switchable, and depend on a state variable located in App.js
+    let localFov = 1.2*Fov;
+    if( localFov > 180){
+        localFov = 180;
+    }
 
     let allConstellationsLength = AllConstellations.length;
 
@@ -23,7 +26,7 @@ function DrawConstellations(ref, Fov, Dec, Ra, radius, RadiusCoFactor, lineColou
         for(let k = 0; k < subConstellationLength - 1; k++ )
         {
             //Decide whether or not to calculate and draw line depending on if it is within current Fov
-            if(angularDistanceCheck(Fov, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1]))
+            if(angularDistanceCheck(localFov, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1]))
             { 
             let coord1 = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k][0], AllConstellations[i][j][k][1] )
             let coord2 = orthographicProjection(radius*RadiusCoFactor, Dec, Ra, AllConstellations[i][j][k+1][0], AllConstellations[i][j][k+1][1] )
