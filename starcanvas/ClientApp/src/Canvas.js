@@ -1,5 +1,4 @@
 import React from 'react'
-import {memo} from 'react';
 import useCanvas from './use_canvas'
 import './Components/css/canvas.css';
 import orthographicProjection from './Tools/orthographic_projection';
@@ -97,7 +96,7 @@ const Canvas = props => {
 
   }
 
-  const currentMousPos = (e) => {
+  const currentMousePos = (e) => {
 
     if(lockedOut){
       return;
@@ -112,6 +111,7 @@ const Canvas = props => {
 
     changeDecRa(Dec, Ra);
     if(lockedOut){
+      permitZooming = false;
       return;
     }
 
@@ -210,7 +210,7 @@ const Canvas = props => {
     onClick={handleClick} 
     onMouseDown={mousedowned} 
     onMouseUp={mouseUpped} 
-    onMouseMove={currentMousPos}
+    onMouseMove={currentMousePos}
     onWheel= {mouseWheeled} 
     onDoubleClick={DoubleClick}/>
   </>

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using starcanvas.data;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace starcanvas.Controllers;
 
@@ -9,21 +11,20 @@ namespace starcanvas.Controllers;
 public class StarsController : ControllerBase
 {
     private readonly ILogger<StarsController> _logger;
-
     public SDContext starsDBContext;
-
+    public Memory<StarsDraw> AllStarsDraw;
     public StarsController(ILogger<StarsController> logger, SDContext _SDContext)
     {
         _logger = logger;
         starsDBContext = _SDContext;
+
+        AllStarsDraw = starsDBContext.StarDraw.Select(x => x).ToArray();
     }
 
     [HttpGet]
     public JsonResult Get()
     {
-
         Span<StarsDraw> Brightest = starsDBContext.StarDraw.Select(x => x).Where(x => x.Magnitude > 3).ToArray(); // will return brightest stars Magnitude is actually radius here...
-
         List<StarsDraw> result = new();
 
         foreach(StarsDraw s in Brightest){
@@ -54,30 +55,27 @@ public class StarsController : ControllerBase
     [HttpGet("StarFOV/{fov}/{dec}/{ra}")]
     public JsonResult StarFOV(double fov, double dec, double ra){
 
-        double maxMagnitude =  0.013333333333333334*fov + 0.6; //straight line function interpolating from maxMagnitude = 3 at fov = 180 to maxMangnitude = 1 at fov = 30
+        double maxMagnitude =  0.013333333333333334*fov + 0.6; //straight line function interpolating from maxMagnitude = 3 at fov = 180 to maxMagnitude = 1 at fov = 30
         double maxMagnitudeRounded = Math.Round(maxMagnitude, 1, MidpointRounding.AwayFromZero);
 
-        Console.WriteLine($"maxMagnitudeRounded for this call: {maxMagnitudeRounded}");
-        Console.WriteLine($"ARGS RECEIVED = fov: {fov}, dec: {dec}, ra: {ra}");
-
-        Span<StarsDraw> Brightest = starsDBContext.StarDraw.Select(x => x).Where(x => x.Magnitude >= maxMagnitudeRounded).ToArray(); // will return brightest stars Magnitude is actually radius here...
         List<StarsDraw> result = new();
 
-        foreach(StarsDraw s in Brightest){
-            if(AngularDistanceCheck(fov, dec, ra, s.DecRad, s.RaRad))
+        StarsDraw[] StarsArray = AllStarsDraw.ToArray();
+
+        foreach(StarsDraw s in StarsArray){
+            if(AngularDistanceCheck(fov, dec, ra, s.DecRad, s.RaRad) && s.Magnitude > maxMagnitudeRounded)
             { 
                 result.Add(s);
             }
-
             else if(s.Name!.Length > 0) //always include the named stars regardless of if they are in the current Fov, prevents disorientation
             {
                 result.Add(s);
             }
+
         }
 
         return new JsonResult(result);
     }
-
 
     /// <summary>
     /// Calculates the geodesic, specifically the angular distance between the two given points.

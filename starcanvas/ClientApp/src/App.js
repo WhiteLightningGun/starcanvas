@@ -6,7 +6,6 @@ import LookUpID from './Data/lookupid';
 import DeclinationToRadians from './Tools/declination_string_to_radians';
 import RAToRadians from './Tools/right_asc_to_radians';
 import angularDistanceCheck from './Tools/angular_distance_check';
-import newCoFactor from './Tools/new_cofactor';
 
 function debounce(fn, ms) {
   let timer
@@ -45,6 +44,7 @@ function App() {
   const [lockedOut, setLockOut] = useState(false);
 
   const UpdateModalWithStarData = (starId) => {
+
     LookUpID(starId).then( (result) => {
       let dec_RAD = DeclinationToRadians(result[0].decRad);
       let ra_RAD = RAToRadians(result[0].raRad);
@@ -74,7 +74,6 @@ function App() {
     width: window.innerWidth
   });
 
-  const [currentCoords, setCurrentCoords] = useState({x: window.innerWidth, y: window.innerHeight});
   const [centreCoords, setCurrentCentre] = useState({centreX: 0.5*window.innerWidth, centreY: 0.5*window.innerHeight});
 
 
@@ -123,7 +122,6 @@ function App() {
           setMessage(`done, lastData updated`);
           setLockOut(false);
           } );
-          setLockOut(true);
           setMessage(`waiting for api return...`); 
       }
     }, 1500)
