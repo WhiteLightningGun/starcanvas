@@ -17,7 +17,6 @@ public class StarsController : ControllerBase
     {
         _logger = logger;
         starsDBContext = _SDContext;
-
         AllStarsDraw = starsDBContext.StarDraw.Select(x => x).ToArray();
     }
 
